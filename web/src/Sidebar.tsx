@@ -33,7 +33,9 @@ class SidebarItem {
   isTiltfile: boolean
   status: ResourceStatus
   hasEndpoints: boolean
+  hasLiveUpdate: boolean
   lastBuildDur: Date | null
+  // last build methods
   lastDeployTime: string
   pendingBuildSince: string
   currentBuildStartTime: string
@@ -54,6 +56,7 @@ class SidebarItem {
     this.isTiltfile = !!res.isTiltfile
     this.status = combinedStatus(res)
     this.hasEndpoints = (res.endpoints || []).length > 0
+    this.hasLiveUpdate = hasLiveUpdate(res) // this feels like it should be res.hasLiveUpdate()?
     this.lastBuildDur =
       lastBuild && lastBuild.startTime && lastBuild.finishTime
         ? timeDiff(lastBuild.startTime, lastBuild.finishTime)
@@ -67,6 +70,10 @@ class SidebarItem {
     this.queued = !!res.queued
     this.lastBuild = lastBuild
   }
+}
+
+function hasLiveUpdate(res: Resource): boolean {
+  return true
 }
 
 const barberpole = keyframes`
@@ -241,7 +248,7 @@ class Sidebar extends PureComponent<SidebarProps> {
           <SidebarItemLink
             className="SidebarItem-link"
             to={pb.path(link)}
-            title={item.name}
+            title={item.hasLiveUpdate ? "⚡️" : "🐢"}
           >
             <SidebarIcon status={item.status} alertCount={item.alertCount} />
             <SidebarItemName>{item.name}</SidebarItemName>
